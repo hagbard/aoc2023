@@ -24,32 +24,38 @@ mod day13;
 mod day14;
 mod day15;
 mod day16;
+mod day17;
 
 fn main() {
-    time(1, &day1::run);
-    time(2, &day2::run);
-    time(3, &day3::run);
-    time(4, &day4::run);
-    time(5, &day5::run);
-    time(7, &day7::run);
-    time(8, &day8::run);
-    time(9, &day9::run);
-    time(10, &day10::run);
-    time(11, &day11::run);
-    time(12, &day12_alt::run);
-    time(13, &day13::run);
-    time(14, &day14::run);
-    time(15, &day15::run);
-    time(16, &day16::run);
-    time(18, &day18::run);
+    let mut total_micros: u128 = 0;
+    total_micros += time(1, &day1::run);
+    total_micros += time(2, &day2::run);
+    total_micros += time(3, &day3::run);
+    total_micros += time(4, &day4::run);
+    total_micros += time(5, &day5::run);
+    total_micros += time(7, &day7::run);
+    total_micros += time(8, &day8::run);
+    total_micros += time(9, &day9::run);
+    total_micros += time(10, &day10::run);
+    total_micros += time(11, &day11::run);
+    total_micros += time(12, &day12_alt::run);
+    total_micros += time(13, &day13::run);
+    total_micros += time(14, &day14::run);
+    total_micros += time(15, &day15::run);
+    total_micros += time(16, &day16::run);
+    total_micros += time(17, &day17::run);
+    total_micros += time(18, &day18::run);
+    println!("Total time: {} µs", total_micros);
 }
 
-fn time<I: Debug>(num: u32, fnc: &dyn Fn(&str) -> (I, I)) {
+fn time<I: Debug>(num: u32, fnc: &dyn Fn(&str) -> (I, I)) -> u128 {
     // panic on possible file-reading errors
     let input =
         read_to_string(&format!("day{}.txt", num)).unwrap().replace("\r\n", "\n");
     let start = Instant::now();
     let (p1, p2) = fnc(&input);
     let taken = start.elapsed();
-    println!("Day {} [{} ms] (1) = {:?}, (2) = {:?}", num, taken.as_millis(), p1, p2);
+    let taken_micros = taken.as_micros();
+    println!("Day {} [{} µs] (1) = {:?}, (2) = {:?}", num, taken_micros, p1, p2);
+    taken_micros
 }

@@ -107,7 +107,7 @@ impl<'a> FromIterator<&'a str> for AGrid {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct GPoint {
     pub pos: Point<usize>,
     pub chr: char,

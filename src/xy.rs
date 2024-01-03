@@ -6,7 +6,7 @@ use crate::util::PrimIter;
 use crate::xy;
 
 /// An orthogonal direction in the X/Y plane, where (0, 0) is considered "top left".
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Dir {
     /// Increasing X.
     Right,
@@ -18,14 +18,14 @@ pub enum Dir {
     Up,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum Orientation {
     Horizontal,
     Vertical,
 }
 
 /// An absolute point in the X/Y plane.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Point<I: PrimInt> {
     pub x: I,
     pub y: I,
