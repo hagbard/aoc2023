@@ -1,20 +1,24 @@
 use std::collections::HashSet;
 
+use rayon::iter::IntoParallelRefIterator;
+use rayon::iter::ParallelIterator;
+
 use crate::agrid::{AGrid, GPoint};
 use crate::xy::{Dir, Point};
 use crate::xy::Dir::{Down, Left, Right, Up};
 
 pub fn run(input: &str) -> (u32, u32) {
     let grid = AGrid::from_lines(input);
+
     let top_left = Point::new(0, 0);
     let bottom_right = Point::new(grid.width() - 1, grid.height() - 1);
+    let mut starts: Vec<(Point<usize>, Dir)> = vec![];
+    starts.extend(grid.points_after(&top_left, Down).map(|p| (p.pos, Right)));
+    starts.extend(grid.points_after(&top_left, Right).map(|p| (p.pos, Down)));
+    starts.extend(grid.points_after(&bottom_right, Left).map(|p| (p.pos, Up)));
+    starts.extend(grid.points_after(&bottom_right, Up).map(|p| (p.pos, Left)));
 
-    let mut results: Vec<u32> = vec![];
-    results.extend(grid.points_after(&top_left, Down).map(|p| Solver::solve(&grid, p.pos, Right)));
-    results.extend(grid.points_after(&top_left, Right).map(|p| Solver::solve(&grid, p.pos, Down)));
-    results.extend(grid.points_after(&bottom_right, Left).map(|p| Solver::solve(&grid, p.pos, Up)));
-    results.extend(grid.points_after(&bottom_right, Up).map(|p| Solver::solve(&grid, p.pos, Left)));
-
+    let results: Vec<u32> = starts.par_iter().map(|&(p, d)| Solver::solve(&grid, p, d)).collect();
     (results[0], *results.iter().max().unwrap())
 }
 
