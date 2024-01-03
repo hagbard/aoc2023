@@ -19,8 +19,9 @@ mod agrid;
 mod xy;
 mod day9;
 mod day11;
-mod day12;
 mod day12_alt;
+mod day13;
+mod day14;
 
 fn main() {
     time(1, &day1::run);
@@ -34,6 +35,8 @@ fn main() {
     time(10, &day10::run);
     time(11, &day11::run);
     time(12, &day12_alt::run);
+    time(13, &day13::run);
+    time(14, &day14::run);
     time(18, &day18::run);
 }
 

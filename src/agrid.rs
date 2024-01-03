@@ -1,6 +1,7 @@
 use std::fmt::Debug;
 
-use ndarray::{Array2, ArrayView1, Axis};
+use ndarray::{Array2, ArrayView1, Axis, Ix1};
+use ndarray::iter::Lanes;
 
 use crate::xy::{Dir, Piter, Point};
 
@@ -52,8 +53,16 @@ impl AGrid {
         self.grid.row(y)
     }
 
+    pub fn rows(&self) -> Lanes<'_, char, Ix1> {
+        self.grid.rows()
+    }
+
     pub fn col(&self, x: usize) -> ArrayView1<'_, char> {
         self.grid.column(x)
+    }
+
+    pub fn cols(&self) -> Lanes<'_, char, Ix1> {
+        self.grid.columns()
     }
 
     pub fn from_lines(s: &str) -> AGrid {
