@@ -1,6 +1,7 @@
 use std::fmt::Debug;
 
-use ndarray::{Array2, ArrayView1, Axis};
+use ndarray::{Array2, ArrayView1, Axis, Ix1};
+use ndarray::iter::Lanes;
 
 use crate::xy::{Dir, Piter, Point};
 
@@ -19,15 +20,24 @@ impl AGrid {
         *self.grid.get((y, x)).unwrap()
     }
 
-    fn it(&self, start: Point<usize>, min_dir: Dir, min_len: usize, maj_dir: Dir, maj_len: usize) -> Giter {
+    pub fn at(&self, pos: &Point<usize>) -> GPoint {
+        GPoint { pos: *pos, chr: self.get(pos) }
+    }
+
+    pub fn at_xy(&self, x: usize, y: usize) -> GPoint {
+        GPoint { pos: Point { x, y }, chr: self.get_xy(x, y) }
+    }
+
+    fn it(&self, start: Point<usize>, min_dir: Dir, min_len: usize, maj_dir: Dir, maj_len: usize) -> impl Iterator<Item=GPoint> + Debug + '_ {
         Giter { grid: &self, it: Piter::new(start, min_dir, min_len, maj_dir, maj_len) }
     }
 
-    pub fn all_points(&self) -> Giter {
+    pub fn all_points(&self) -> impl Iterator<Item=GPoint> + Debug + '_ {
         self.it(Point::origin(), Dir::Right, self.width(), Dir::Down, self.height())
     }
 
-    pub fn points_from(&self, p: &Point<usize>, dirn: Dir) -> Giter {
+    pub fn points_from(&self, p: &Point<usize>, dirn: Dir) -> impl Iterator<Item=GPoint> + Debug + '_ {
+        self.check_valid_point(p);
         match dirn {
             Dir::Right => self.it(*p, Dir::Right, self.width() - p.x, Dir::Up, 1),
             Dir::Down => self.it(*p, Dir::Right, 1, Dir::Down, self.height() - p.y),
@@ -36,8 +46,12 @@ impl AGrid {
         }
     }
 
-    pub fn points_after(&self, p: &Point<usize>, dirn: Dir) -> Giter {
-        self.points_from(&p.move_by(1, dirn), dirn)
+    pub fn points_after(&self, p: &Point<usize>, dirn: Dir) -> impl Iterator<Item=GPoint> + Debug + '_ {
+        self.points_from(p, dirn).skip(1)
+    }
+
+    fn check_valid_point(&self, p: &Point<usize>) {
+        assert!(p.x < self.width() && p.y < self.height());
     }
 
     pub fn width(&self) -> usize {
@@ -52,8 +66,16 @@ impl AGrid {
         self.grid.row(y)
     }
 
+    pub fn rows(&self) -> Lanes<'_, char, Ix1> {
+        self.grid.rows()
+    }
+
     pub fn col(&self, x: usize) -> ArrayView1<'_, char> {
         self.grid.column(x)
+    }
+
+    pub fn cols(&self) -> Lanes<'_, char, Ix1> {
+        self.grid.columns()
     }
 
     pub fn from_lines(s: &str) -> AGrid {
@@ -85,7 +107,7 @@ impl<'a> FromIterator<&'a str> for AGrid {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct GPoint {
     pub pos: Point<usize>,
     pub chr: char,
@@ -98,7 +120,7 @@ impl From<(Point<usize>, char)> for GPoint {
 }
 
 #[derive(Debug)]
-pub struct Giter<'a> {
+struct Giter<'a> {
     grid: &'a AGrid,
     it: Piter<usize>,
 }
@@ -113,6 +135,7 @@ impl<'a> Iterator for Giter<'a> {
 
 #[cfg(test)]
 mod tests {
+    use indoc::indoc;
     use ndarray::array;
 
     use Dir::Right;
@@ -139,6 +162,6 @@ mod tests {
            stuvwx"};
         let g = AGrid::from_lines(s);
 
-        assert_eq!(g.points_from((5, 2).into(), Right).collect::<Vec<_>>(), vec!['r', 'q', 'p', 'o', 'n', 'm']);
+        assert_eq!(g.points_from(&Point::new(5, 2), Right).map(|p| p.chr).collect::<Vec<_>>(), vec!['r', 'q', 'p', 'o', 'n', 'm']);
     }
 }

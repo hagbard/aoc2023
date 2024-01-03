@@ -6,7 +6,7 @@ use crate::util::PrimIter;
 use crate::xy;
 
 /// An orthogonal direction in the X/Y plane, where (0, 0) is considered "top left".
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Dir {
     /// Increasing X.
     Right,
@@ -18,14 +18,14 @@ pub enum Dir {
     Up,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum Orientation {
     Horizontal,
     Vertical,
 }
 
 /// An absolute point in the X/Y plane.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Point<I: PrimInt> {
     pub x: I,
     pub y: I,
@@ -81,10 +81,10 @@ impl<I: PrimInt> Piter<I> {
         assert!(len >= I::one());
         let offset = len - I::one();
         match dir {
-            Dir::Right => PrimIter::new(start.x, start.x + offset, I::one()),
-            Dir::Down => PrimIter::new(start.y, start.y + offset, I::one()),
-            Dir::Left => PrimIter::new(start.x, start.x - offset, I::one()),
-            Dir::Up => PrimIter::new(start.y, start.y - offset, I::one()),
+            Right => PrimIter::new(start.x, start.x + offset, I::one()),
+            Down => PrimIter::new(start.y, start.y + offset, I::one()),
+            Left => PrimIter::new(start.x, start.x - offset, I::one()),
+            Up => PrimIter::new(start.y, start.y - offset, I::one()),
         }
     }
 }
@@ -117,7 +117,7 @@ mod tests {
     fn test_piter() {
         let smol: Point<u8> = Point { x: 0x1, y: 0x1 };
 
-        let it: Piter<u8> = Piter::new(smol, Right, 0x2, Dir::Down, 0x2);
+        let it: Piter<u8> = Piter::new(smol, Right, 0x2, Down, 0x2);
         assert_eq!(it.collect::<Vec<_>>(), vec![
             Point::new(1, 1),
             Point::new(2, 1),
